@@ -100,4 +100,5 @@ const BootcampSchema = new mongoose.Schema(
 });
 
 // Create a Model with the name of `Bootcamp` with the `BootcampSchema`
+// when creating - only fields that match the model will get put in the database
 module.exports = mongoose.model('Bootcamp', BootcampSchema);

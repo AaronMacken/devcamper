@@ -7,6 +7,9 @@ const connectDB = require('./config/db');
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+// Body parser (middleware) - access req.body from our requests
+app.use(express.json());
+
 // load env vars
 dotenv.config({ path: './config/config.env' });
 
