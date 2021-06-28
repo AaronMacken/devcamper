@@ -4,15 +4,39 @@ const Bootcamp = require("../models/Bootcamp");
 // @desc    get all bootcamps
 // @route   GET /api/v1/bootcamps
 // @access  Public
-exports.getBootcamps = (req, res, next) => {
-  res.status(200).json({ success: true, msg: "show all bootcamps", hello: req.hello });
+exports.getBootcamps = async (req, res, next) => {
+    try {
+        // Model.find() will find all
+        const bootcamps = await Bootcamp.find();
+
+        res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps });
+    } catch (error) {
+        res.status(400).json({ success: false });
+    }
+
+//   res.status(200).json({ success: true, msg: "show all bootcamps", hello: req.hello });
 };
 
 // @desc    get single bootcamps
 // @route   GET /api/v1/bootcamps/:id
 // @access  Public
-exports.getBootcamp = (req, res, next) => {
-  res.status(200).json({ success: true, msg: `get bootcamp ${req.params.id}` });
+exports.getBootcamp = async (req, res, next) => {
+    try {
+        const bootcamp = await Bootcamp.findById(req.params.id);
+
+        // if ID was formatted correctly, but does not exist in the DB
+        // need to return or we'll get the "headers already sent" error (trying to send 2 statuses)
+        if (!bootcamp) {
+            return res.status(400).json({ success: false });
+        }
+
+        res.status(200).json({ success: true, data: bootcamp });
+    } catch (error) {
+        // if improperly formatted ID or something else went wrong
+        res.status(400).json({ success: false });
+    }
+
+//   res.status(200).json({ success: true, msg: `get bootcamp ${req.params.id}` });
 };
 
 // @desc    create a bootcamp
@@ -46,13 +70,47 @@ exports.createBootcamp = async (req, res, next) => {
 // @desc    update a bootcamp
 // @route   PUT /api/v1/bootcamps/:id
 // @access  Private
-exports.updateBootcamp = (req, res, next) => {
-  res.status(200).json({ success: true, msg: `Update bootcamp ${req.params.id}` });
+exports.updateBootcamp = async (req, res, next) => {
+    // use the URL ID param as first argument, 
+    // and the body data coming from the user as the second
+    // third param is an `options` object
+    // new: true - send back the newly updated object in the response
+    // runValidators - run our mongoose validators so the data we're updating is correct
+
+    try {
+        const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
+    
+        // if no bootcamp was found, fail
+        if (!bootcamp) {
+            return res.status(400).json({ success: false });
+        }
+    
+        res.status(200).json({ success: true, data: bootcamp });
+    } catch (error) {
+        res.status(400).json({ success: false });
+    }
+
+
+    // res.status(200).json({ success: true, msg: `Update bootcamp ${req.params.id}` });
 };
 
 // @desc    delete a bootcamp
 // @route   DELETE /api/v1/bootcamps/:id
 // @access  Private
-exports.deleteBootcamp = (req, res, next) => {
-  res.status(200).json({ success: true, msg: `Delete bootcamp ${req.params.id}` });
+exports.deleteBootcamp = async (req, res, next) => {
+    try {
+        const bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+    
+        // if no bootcamp was found, fail
+        if (!bootcamp) {
+            return res.status(400).json({ success: false });
+        }
+    
+        res.status(200).json({ success: true, data: {} });
+    } catch (error) {
+        res.status(400).json({ success: false });
+    }
 };
