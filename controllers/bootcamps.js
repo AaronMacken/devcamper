@@ -33,7 +33,13 @@ exports.getBootcamp = async (req, res, next) => {
         res.status(200).json({ success: true, data: bootcamp });
     } catch (error) {
         // if improperly formatted ID or something else went wrong
-        res.status(400).json({ success: false });
+
+        // Instead of manually sending back an error, we can use "next" and pass in the error
+        // next is given to us by express, will return an error HTML page by default, but we want to send back JSON
+        // so we will need to make a custom error handler - middleware/error.js
+        // res.status(400).json({ success: false });
+
+        next(error);
     }
 
 //   res.status(200).json({ success: true, msg: `get bootcamp ${req.params.id}` });

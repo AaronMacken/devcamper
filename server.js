@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const colors = require('colors');
+const errorHandler = require('./middleware/error');
 
 const connectDB = require('./config/db');
 
@@ -33,6 +34,9 @@ if(process.env.NODE_ENV === 'development') {
 // tell the app to use the the `routes/bootcamps` code
 // whenever this URL is seen
 app.use('/api/v1/bootcamps', bootcamps);
+
+// use custom error handler
+app.use(errorHandler);
 
 const server = app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`.yellow.bold));
 
