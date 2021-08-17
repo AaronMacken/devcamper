@@ -31,11 +31,14 @@ if(process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-// tell the app to use the the `routes/bootcamps` code
-// whenever this URL is seen
+// route controller methods
+// tell the app to use the the `routes/bootcamps` code whenever this URL is seen
 app.use('/api/v1/bootcamps', bootcamps);
 
 // use custom error handler
+// has to come AFTER your route controller methods ^
+// or else the app will try to run the error handling logic
+// before it knows that the route controller methods are calling `next` & passing in an `error`
 app.use(errorHandler);
 
 const server = app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`.yellow.bold));

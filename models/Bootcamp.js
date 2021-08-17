@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const slugify = require('slugify');
+const geocoder = require('../utils/geocoder');
 
 // create a Schema for your data model
 // takes an object with what it should have
@@ -98,6 +100,40 @@ const BootcampSchema = new mongoose.Schema(
       default: Date.now,
     },
 });
+
+// `pre middleware` - run an operation before a `bootcamp` is `saved`
+// must use a regular function, `this` will have access to the values of the `schema`
+// must call `next` to go onto the next thing
+// Create bootcamp slug from the name
+BootcampSchema.pre('save', function(next) {
+  // console.log('Slugify ran', this.name);
+
+  // Create a slug based off of the name the user provided
+  // check `slugify` docs for more options
+  this.slug = slugify(this.name, { lower: true });
+
+  next();
+});
+
+// Geocode & create location field
+BootcampSchema.pre('save', async function(next) {
+  const location = await geocoder.geocode(this.address);
+  this.location = {
+    type: 'Point',
+    coordinates: [location[0].longitude, location[0].latitude],
+    formattedAddress: location[0].formattedAddress,
+    street: location[0].streetName,
+    city: location[0].city,
+    state: location[0].stateCode,
+    zipCode: location[0].zipCode,
+    country: location[0].countryCode
+  };
+
+  // this geo package formats an address for us, so we can decide to not save the `address` in the DB
+  this.address = undefined; // address will not get put into the DB
+
+  next();
+})
 
 // Create a Model with the name of `Bootcamp` with the `BootcampSchema`
 // when creating - only fields that match the model will get put in the database
